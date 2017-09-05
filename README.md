@@ -211,5 +211,47 @@ V 0.3.5<br>
         }
     }
 ```
+## 最后说明一下:如果是glide方式显示图片的话
+### 请在ImageDetailFragment类中这样使用：
+```java
+@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		final View v = inflater.inflate(R.layout.image_detail_fragment, container, false);
+		mImageView = (PhotoView) v.findViewById(R.id.image);
+		mAttacher = new PhotoViewAttacher(mImageView);
 
+		mAttacher.setOnPhotoTapListener(new OnPhotoTapListener() {
+
+			@Override
+			public void onPhotoTap(View arg0, float arg1, float arg2) {
+				getActivity().finish();
+			}
+		});
+
+		progressBar = (ProgressBar) v.findViewById(R.id.loading);
+		return v;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+        //进度显示
+		progressBar.setVisibility(View.VISIBLE);
+		Glide.with(getActivity()).load(mImageUrl).listener(new RequestListener<String, GlideDrawable>() {
+			@Override
+			public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+				return false;
+			}
+
+			@Override
+			public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+//				Toast.makeText(getActivity(),"图片加载完成",Toast.LENGTH_SHORT).show();
+                //进度隐藏
+				progressBar.setVisibility(View.GONE);
+				mAttacher.update();
+				return false;
+			}
+		}).into(mImageView);
+	}
+```
 ## 更多使用，请下载demo参看源代码
